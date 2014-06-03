@@ -2,6 +2,9 @@
 #ifndef __BoltzmanForNelson__
 #define __BoltzmanForNelson__
 
+
+using namespace std;
+
 double NelsonPotential(double x, double y){
   //parametros de Nelson 
   const double omega1=0.1;
@@ -19,8 +22,9 @@ double NelsonPotential(double x, double y){
 
 double Boltzmanpdf(double x, double y){
 
+
   double result;
-  result=exp(-dt*Nelsonpotential(x,y)/hbar);
+  result=exp(-dt*NelsonPotential(x,y)/hbar);
   
   return result;
 
