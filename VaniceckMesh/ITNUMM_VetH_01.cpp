@@ -29,7 +29,7 @@ using namespace arma;
 int main(int argc, char *argv[]){
 
   const int PuntosMalla=500;
-  const int NivelMaximo=100;
+ 
   gsl_rng * r = gsl_rng_alloc (gsl_rng_taus);
 
 
@@ -77,8 +77,15 @@ int main(int argc, char *argv[]){
 
   eig_sym(energias, eigenestados, propagator);
 
+  energias.save("ExpEnergias.dat", arma_ascii);
+
+  energias=log(energias);
+
+  energias=energias/(-(dt/hbar));
+
   energias.save("Energias.dat", arma_ascii);
 
   return 0;
 
 }
+
