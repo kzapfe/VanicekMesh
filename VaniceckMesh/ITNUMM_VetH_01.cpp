@@ -28,7 +28,7 @@ using namespace arma;
 
 int main(int argc, char *argv[]){
 
-  const int PuntosMalla=500;
+  const int PuntosMalla=1000;
  
   gsl_rng * r = gsl_rng_alloc (gsl_rng_taus);
 
@@ -77,13 +77,17 @@ int main(int argc, char *argv[]){
 
   eig_sym(energias, eigenestados, propagator);
 
-  energias.save("ExpEnergias.dat", arma_ascii);
+  energias.save("LamdaExpEnergias.dat", arma_ascii);
+
+  energias=energias/(PuntosMalla/Z_V);
 
   energias=log(energias);
 
-  energias=energias/(-(dt/hbar));
-
+  energias=energias/(-dt/hbar);
+  
   energias.save("Energias.dat", arma_ascii);
+  
+  eigenestados.save("EigenStates.dat", raw_ascii);
 
   return 0;
 

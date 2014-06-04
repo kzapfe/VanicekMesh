@@ -7,3 +7,6 @@ TestBoltz01.x: TestingDistro01.cpp $(FUENTESTest)
 
 TestPropagator.x: ITNUMM_VetH_01.cpp $(FUENTES)
 	 g++ $(LIBSGEN)  $< -o $@
+
+Integra.x: IntegraBolztman01.cpp $(FUENTES)
+	g++ $(LIBSGEN) $< -o $@

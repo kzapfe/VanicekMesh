@@ -30,14 +30,14 @@ int main(int argc, char *argv[]){
   
   
   for(int i=0;i<PuntosMalla;i++){
-    x=gsl_ran_flat( r, -7, 7);
-    y=gsl_ran_flat( r, -2,14);  
+    x=gsl_ran_flat( r, -14, 14);
+    y=gsl_ran_flat( r, -6,18);  
     PDFBoltz=Boltzmanpdf(x,y);
     pancha<<x<<"\t"<<y<<"\t"<<PDFBoltz<<endl;
     integral+=PDFBoltz;    
     };
 
-  integral=integral/PuntosMalla*14.*16.;
+  integral=integral/PuntosMalla*28.*24.;
 
   cout<<"la integral de pdfBoltz al azar es "<<integral<<endl;
   
@@ -45,19 +45,20 @@ int main(int argc, char *argv[]){
 
   lola.open("PuntosIntegraBoltz01.dat");
   
-  for(int i=0;i<500;i++){
-    for(int j=0;j<500;j++){
-      x=-7.+(double)i/500.*14.0;
-      y=-2.+(double)j/500.*16.0;
+  for(int i=0;i<700;i++){
+    for(int j=0;j<700;j++){
+      x=-14.+(double)i/500.*28.0;
+      y=-6.+(double)j/500.*24.0;
     PDFBoltz=Boltzmanpdf(x,y);
     lola<<x<<"\t"<<y<<"\t"<<PDFBoltz<<endl;
     integral+=PDFBoltz;    
     };
   }
   
-  integral=integral/500./500*14.*16.;
+  integral=integral/500./500*28.*24.;
   
   cout<<"la integral de pdfBoltz al riemancuadros es "<<integral<<endl;
+  cout<<"El valor analitico deberia dde ser  "<<Z_V<<endl;
 
 
   return 0;
