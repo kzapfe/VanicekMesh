@@ -5,6 +5,9 @@ LIBSGEN=-lgsl -larmadillo
 TestBoltz01.x: TestingDistro01.cpp $(FUENTESTest)
 	g++ -lgsl  $< -o $@
 
+TestOscilador1D.x: ITNUMM_VetH_Oscilator1D.cpp $(FUENTES)
+	 g++ $(LIBSGEN)  $< -o $@
+
 TestPropagator.x: ITNUMM_VetH_01.cpp $(FUENTES)
 	 g++ $(LIBSGEN)  $< -o $@
 
