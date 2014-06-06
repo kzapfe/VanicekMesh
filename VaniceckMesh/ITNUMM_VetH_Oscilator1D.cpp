@@ -51,7 +51,7 @@ int main(int argc, char *argv[]){
     //exactamente igual que en los adendums del paper
     //muestreo "perfecto"
     dumy=(double)(i+0.5)/(double)PuntosMalla;
-    PuntosQ(i)=sqrt(2./dt)*
+    PuntosQ(i)=sqrt(1./dt)*
       gsl_cdf_ugaussian_Pinv(dumy);
     cout<<"Llevo "<<i <<" Puntos en la distro"<<endl;
   }
@@ -66,7 +66,7 @@ int main(int argc, char *argv[]){
     }
   }
 
-  propagator=propagator*(factorpropagator*Z_O1D/PuntosMalla);
+  propagator=propagator/(dt*PuntosMalla);
 
   //  cout<<propagator;
 
