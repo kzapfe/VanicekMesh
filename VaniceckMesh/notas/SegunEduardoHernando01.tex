@@ -1,0 +1,200 @@
+\documentclass[a4paper,12pt]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+%\usepackage{subfigure}
+%\usepackage[spanish]{babel}
+\usepackage{bm}
+\usepackage{caption}
+\usepackage{subcaption}
+
+\usepackage[cm]{fullpage}
+\usepackage[light]{antpolt}
+\usepackage[T1]{fontenc}
+
+\usepackage{float}
+
+%Este paquete le pone una barrera a los floats
+% al final de cada seccion
+\usepackage[section]{placeins}
+
+
+\bibliographystyle{alpha}
+
+\newcommand{\dt}{\Delta\tau}
+\newcommand{\ihb}{\frac{i}{\hbar}}
+\newcommand{\xfase}{\mathbf{x}}
+\newcommand{\yfase}{\mathbf{y}}
+\newcommand{\qfase}{\mathbf{q}}
+\newcommand{\xifase}{ {\boldsymbol{\xi}} }
+\newcommand{\mufase}{ {\boldsymbol{\mu}} }
+\newcommand{\Ifase}{\mathbf{I}}
+\newcommand{\Pfase}{\mathbf{P}}
+\newcommand{\Scat}{\mathbf{S}}
+\newcommand{\Jsimp}{\mathbf{J}}
+\newcommand{\Dom}{\mathbb{D}}
+\newcommand{\Var}{\mathbb{M}}
+\newcommand{\bra}[1]{\langle #1|}
+\newcommand{\ket}[1]{|#1\rangle}
+\newcommand{\braket}[2]{\langle #1|#2\rangle}
+\newcommand{\Prom}[2]{\langle #1\rangle_{#2}}
+
+
+\DeclareMathOperator*{\cod}{cod}
+\DeclareMathOperator*{\traza}{traza}
+
+
+\title{Tecnica de Hernando Segun Eduardo}
+\author{Zambrano et Zapfe}
+
+
+\begin{document}
+
+Let us set things straight and formal.
+
+La solución formal para una función de estado en MQ es la siguiente:
+\begin{equation}
+\Psi(q,t)=\int dq' K(q,q', t-t') \Psi(q',t'),
+\end{equation}
+De ahora en adelante,  $t_0=0$.
+Eso es una abreviación de la siguiente expresión mas formal:
+\begin{equation}\label{evolbien}
+\bra{q}\ket{\Psi_t}=\int dq' \bra{q}U^t\ket{q'}\bra{q'}\ket{\Psi_0},
+\end{equation}
+donde hemos hecho explicito el operador identidad en la base $q'$, 
+\begin{equation}
+\Ifase=\int dq' \ket{q'}\bra{q'}.
+\end{equation}
+La naturaleza vectorial es mas evidente si pensamos en el vector de
+estado, y no en la función de estado:
+\begin{equation}
+\ket{\Psi_t}=\int dq' U^t\ket{q'}\bra{q'}\ket{\Psi_0},
+\end{equation}
+
+Pot otra parte, formalmente el operador de evolución es:
+\begin{equation}
+U^t=\exp{-\ihb \hat{H} t} 
+\end{equation}
+Si $\hat{H}=\hat{T}+\hat{V}$ (sumando que  en general no conmutan),
+aproximamos ya sea por 
+\begin{equation}\label{aproxHernando}
+\exp{-\ihb \hat{H} t}\approx 
+ \exp{-\ihb \hat{T} t}\exp{-\ihb \hat{V}t}+O(t^2)
+\end{equation}
+o por algo más sofisticado
+\begin{equation}\label{aproxEduardo}
+\exp{-\ihb \hat{H} t}\approx
+ \exp{-\ihb \hat{V}t/2}\exp{-\ihb \hat{T} t}\exp{-\ihb \hat{V}t/2}+O(t^4)
+\end{equation}
+Veamos el segundo caso. Insertando la aproximación en la expresión 
+\ref{evolbien}, tenemos lo siguiente:
+\begin{equation}\label{ketaprox1}
+\bra{q}\ket{\Psi_t}  = \int dq' \bra{q} 
+\exp{-\ihb \hat{V}t/2}\exp{-\ihb \hat{T} t}\exp{-\ihb \hat{V}t/} 
+\ket{q'}\bra{q'}\ket{\Psi_0},
+\end{equation}
+dado que $exp(-\ihb \hat{V}t/2)$ es una función bien comportada de $\hat{q}$,
+opera de la forma esperada sobre los eigenestados de las $q$. Entonces adquirimos
+simplemente los valores esperados a la derecha e izquierda del propagador:
+\begin{equation}\label{ketaprox2}
+  \bra{q}\ket{\Psi_t}  = \int dq' \exp(-\ihb t/2 (V(q)+V(q'))) 
+  \bra{q} \exp{-\ihb \hat{T} t}\ket{q'}\bra{q'}\ket{\Psi_0}.
+\end{equation}
+Lo que queda entre los brakets es el propagador de una particula
+libre, asì que tenemos que ($m=1$):
+\begin{equation}\label{ketaprox2}
+  \bra{q}\ket{\Psi_t}  = \int dq' \exp(-\ihb t/2 (V(q)+V(q'))) 
+  (\frac{ i }{2\pi\hbar t})^{d/2} \exp(\ihb 1/(2t) (q-q')^2)
+  \bra{q'}\ket{\Psi_0}.
+\end{equation}
+Hasta aquí, nada nuevo. Viene ahora la cuestion del tiempo
+imaginario. Usemos $t=-i\dt$, y supongamos que
+$\Psi(q,t)$ representa un estado estacionario, es decir, 
+$\Psi(q,t)=\exp{-\ihb E_n t}\psi_n(q)$.
+\begin{equation}\label{ketaprox2}
+  exp(-\ihb E_n \dt) \psi_n{q}  = \int dq' \exp(-\hbar \dt/2 (V(q)+V(q'))) 
+  (\frac{1}{2\pi\hbar \dt})^{d/2} \exp(- \hbar 1/(2t) (q-q')^2)
+  \psi_n(q').
+\end{equation}
+
+En el esquema de 
+Eduardo, vamos a usar una malla uniforme de puntos sobre el
+espacio de las $q$. Esto hace que nuestra identidad aproximada
+tenga la forma:
+\begin{equation}
+\int dq' \ket{q'}\bra{q'}\approx \frac{A}{N}\sum_j \ket{q_j'}\bra{q_j'}.
+\end{equation}
+Donde N es el número de puntos de la malla (``grilla'') y A el área
+que cubrimos en el muestreo. 
+
+Entonces segun esto ya habríamos chingado, ya que tenemos que la ecuación
+queda de la bonita forma:
+\begin{equation}\label{ketaprox2}
+  \exp(-\ihb E_n \dt) \psi_n{q_k}  = \frac{A}{N}\sum_j 
+\exp(-\hbar \dt/2 (V(q_k)+V(q_j))) 
+  (\frac{1}{2\pi\hbar \dt})^{d/2} \exp(- \hbar 1/(2t) (q_k-q_j)^2)
+  \psi_n(q_j).
+\end{equation}
+Que ya es claramente una ecuacion de eigenvectores para el operador
+\begin{equation}
+\tilde{K}_{kj}=\frac{A}{N}
+\exp(-\hbar \dt/2 (V(q_k)+V(q_j))) 
+  (\frac{1}{2\pi\hbar \dt})^{d/2} \exp(- \hbar/(2\dt) (q_k-q_j)^2)
+\end{equation}
+
+
+¿Entonces cual es el problema? Veamos, para poder confiar en el 
+método, tendriamos que probarlo para un sistema simple, así
+que podamos checarlo con el oscilador
+armónico de una dimensión. ¿Cuales son los posibles tropiezos?
+La elección de $A,N$ y $\dt$. Comenzemos.
+
+Supongamos que queremos obtener los primeros 50 eigenestados
+de un OA (usemos $\hbar=1, \omega=1$). La expresión para $\tilde{K}$
+quedará de la forma:
+\begin{equation}
+\tilde{K}_{kj}=\frac{A}{N}
+(\frac{1}{2\pi\dt})^{d/2} 
+\exp(-\dt/4 (q_k^2+q_j^2))
+\exp(-1/(2\dt) (q_k-q_j)^2)
+\end{equation}
+Los valores de $q_{max}=\sqrt{2E}$ nos dan una valor de $A$:
+\begin{align}
+q_{max} & =\sqrt{2E_n}\\
+& =\sqrt{2\hbar\omega (50+1/2)}\\
+\approx{10}. 
+\Rightarrow A  &> (q_{max}-(-q_{max}))=20.
+\end{align}
+Let us find this out. Probemos un OA de una dimensión. He aquí
+los eigenniveles:
+
+\begin{figure}[h]
+\includegraphics[width=0.7\textwidth]{EigenEnergiasOA1D.pdf}
+\caption{Nota como el primer valor esta un poquito mal, pero la tendencia es la
+correcta. Debería de ser 0.5, y es 0.499907.}
+\end{figure}
+
+
+Funciono para 1D, veamos para un OA de dos dimensiones. Aquí la cosa parece estancarse.
+Por mas valores que escogí para $\dt$ y probe con distintas densidades de puntos,
+siempre el estado base me dio con energía negativa. Si los dos
+OA tienen el mismo $\omega$, los niveles deberían de ser degenerados de orden
+$n$, asi que la grafica de los niveles debe parecer algo con escalones cada
+vez mas anchos, el primero de un punto, el segundo de dos, etc. Asi como queriendo
+ver las cosas con mucha buena fe, usted podrá descubrir que al menos esa tendencia 
+se cumple. Aquí use 10'000 puntos, es decir, 100 puntos por cada lado de la malla,
+lo cual hace bastante lento el proceso de diagonalización. 
+
+
+\begin{figure}[h]
+\includegraphics[width=0.7\textwidth]{NoTanBien2DOA.pdf}
+\caption{Dos osciladores armónicos, $N=10000, \omega_1=\omega_2=1, \hbar=1
+\dt=0.0118$. El estúpido valor que obtengo para $E_0$ es $-1.779$.}
+\end{figure}
+
+
+
+
+\end{document}
