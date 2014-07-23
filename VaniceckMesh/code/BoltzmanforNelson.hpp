@@ -8,8 +8,8 @@ using namespace std;
 double PotArm(double x, double y){
   double result;
   //Caso uno, isotropico, degenerado. 
-  const double w1=1.0, w2=1.0;
-  result=w1*x/2.+w2*y/2;
+  //const double w1=1.0, w2=1.0;
+  result=x/2.+y/2.;
 
   return result;
 

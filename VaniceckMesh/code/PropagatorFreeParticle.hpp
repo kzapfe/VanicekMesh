@@ -30,8 +30,9 @@ double UNormPropagatorFreeImagTime(rowvec q, rowvec qprima, double deltatau){
   //solo el exponente, hbar=1, m=1
   double result;
   result=exp(-(norm(q-qprima)*norm(q-qprima))/(2.*deltatau*hbar));
-  return result;  
   
+  
+  return result;  
 }
 
 
@@ -44,12 +45,14 @@ mat FreePropagatorImagTime(mat puntos, double deltatau){
   
 }
 
+
 double UNormPropOAITime(double x, double xprima, 
 			double y, double yprima, 
 			double deltatau){
   
   double result;
   result=exp((-PotArm(x,y)-PotArm(xprima,yprima))*deltatau/(2.0*hbar));
+ 
   return result;  
   
 }
@@ -60,6 +63,7 @@ double PropOA1D(double x, double xprima,
   double w=1.0;
   double result;
   result=exp(-(x*x+xprima*xprima)*(w/2.)*deltatau/(2.0*hbar));
+  
   return result;  
   
 }

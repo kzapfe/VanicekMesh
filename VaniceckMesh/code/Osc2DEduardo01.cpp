@@ -46,18 +46,15 @@ int main(int argc, char *argv[]){
   const int PuntosMalla=Puntos1D*(Puntos1D);
   //En este test, vamos a usar hbar=1
 
-  gsl_rng * r = gsl_rng_alloc (gsl_rng_taus);
-
-
   cout<<"Probando exactamente lo de Eduardo, Empecemos con dos OA differentes."<<endl;
 
   double x,y;
   int contando=0; 
-  mat propagator=zeros<mat>(PuntosMalla,PuntosMalla);
+  mat propagator=eye<mat>(PuntosMalla,PuntosMalla);
   vec PuntosX(Puntos1D), PuntosY(Puntos1D);
   mat PuntosQ(PuntosMalla,2);
 
-  const double xmin=-4, xmax=4;
+  const double xmin=-5, xmax=5;
 
 
   for(int i=0; i<Puntos1D;i++){
@@ -93,7 +90,7 @@ int main(int argc, char *argv[]){
   
   start=clock();
   cout<<"Sacando el Propagador"<<endl;
-  for(int i=0; i<PuntosMalla-1;i++){
+  for(int i=0; i<PuntosMalla;i++){
     quno=PuntosQ.row(i);
     for(int j=0; j<PuntosMalla;j++){
       qdos=PuntosQ.row(j);
@@ -101,7 +98,7 @@ int main(int argc, char *argv[]){
       aux=UNormPropagatorFreeImagTime(quno, qdos,dt)
 	*UNormPropOAITime(PuntosQ(i,0), PuntosQ(j,0), 
 			  PuntosQ(i,1), PuntosQ(j,1), dt) ;
-      if(aux>0.00001)propagator(i,j)=aux;
+      propagator(i,j)=aux;
     }
   }
   finish=clock();
@@ -116,14 +113,14 @@ int main(int argc, char *argv[]){
 
   //  cout<<propagator;
   
-  //  propagator.save("PropEduardoOA2D.dat", raw_ascii);
+  propagator.save("PropEduardoOA2D.dat", raw_ascii);
 
   mat eigenestados;
   vec energias;
   
   cout<<"Haciendo la parte perra, sacando EigenEnergias"<<endl;
   start=clock();
-  eig_sym(energias, eigenestados, propagator);
+  eig_sym(energias, eigenestados,propagator);
    finish=clock();
    cout<<"Nos tardamos  "<< finish-start 
        << " ciclos de cpu en obtener la EigenDescomposicion"<<endl;;
@@ -138,6 +135,8 @@ int main(int argc, char *argv[]){
   energias=energias*hbar/(-dt);
   
   energias.save("Energias.dat", raw_ascii);
+
+  eigenestados.insert_cols(0, PuntosQ);
   
   eigenestados.save("EigenStates.dat", raw_ascii);
 
