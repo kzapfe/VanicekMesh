@@ -7,7 +7,7 @@ import numpy.linalg as la
 
 datotimestep=sys.argv[1]
 #Parametros
-N=80 #Puntos por lado en la malla
+N=101 #Puntos por lado en la malla
 xmin=-5.
 xmax=5.
 ymin=-1.
@@ -54,9 +54,14 @@ explambdaenergias=Chunflas[0].real
 energias=np.sort(np.log(explambdaenergias)*hbar/(-dt))
 EigenFunciones=np.append(PuntosQ, Chunflas[1].real,1)
 
+NombreEnergia="EnergiasNelsonMasPuntos-"+datotimestep+".dat"
 
-NombreEnergia="EnergiasNelson-"+datotimestep+".dat"
-NombreEstados="EigenEstadosNelson-"+datotimestep+".dat"
+NombreEstados="EigenEstadosNelsonMasPuntos-"+datotimestep+".dat"
 #Guardamos EigenEnergias y EigenVectores
 np.savetxt(NombreEnergia, energias)
-np.savetxt(NombreEstados, EigenFunciones)
+
+#Como son demasiados estados, y los ultimos suelen ESTAR MAL
+#Cortamos la matriz y solo guardamos los primeros 500.
+EstadosSimplificados=EigenFunciones[0:N*N, 0:502]
+
+np.savetxt(NombreEstados, EstadosSimplificados)
