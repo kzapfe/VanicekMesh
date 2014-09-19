@@ -4,7 +4,7 @@ Python, usando armadillo. Hold your breath, men.
  */
 
 #include <armadillo> //intentemos primero con arma
-
+#include <string>
 
 using namespace std;
 using namespace arma;
@@ -25,13 +25,27 @@ int main(int argc, char *argv[]){
   string tailnombre;
   tailnombre=argv[1];
 
-
   const double hbar=0.05;
-  const int N=80;
+  const int N=256;
   const double xmin=-5.0, xmax=5.0;
   const double ymin=-1.0, ymax=9.0;
   const double pi=3.14159265359;
   
+
+  string nombreenergias;
+  string nombreestados;
+  string colapuntos;
+  stringstream ss;
+  ss << N; 
+  colapuntos = ss.str();
+
+  nombreenergias="Energias-"+tailnombre+"-"+colapuntos+".dat";
+  nombreestados="Estados-"+tailnombre+"-"+colapuntos+".dat";
+
+  cout<<"Vamos a obtener los archivos "<<nombreestados<<
+    " y "<<nombreenergias<<endl;
+
+
   //ugly but readable beats correct but illegible
   mat PuntosQ(N*N,2);
   
@@ -47,7 +61,6 @@ int main(int argc, char *argv[]){
 
   //Hasta ahora, igualito que Python.
   PuntosQ.save("Coordenadas80.dat", raw_ascii);
-
   
   sp_mat Propagator(N*N, N*N);
   double valor=0.000;
@@ -80,18 +93,26 @@ int main(int argc, char *argv[]){
   double ZD=(xmax-xmin)*(ymax-ymin);
   Propagator=Propagator*ZD/(N*N*2.*hbar*dt*pi);
 
-  int kuantos=400;
+  int kuantos=1000;
   vec EigenValores(kuantos);
   mat EigenEstados;
   
   eigs_sym(EigenValores, EigenEstados, Propagator, kuantos);
-
+  
   EigenValores=log(EigenValores)*hbar/(-dt);
 
-  EigenValores.save("TestEigenVgpp.dat",raw_ascii);
-  EigenEstados.save("TestEigenEstgpp.dat",raw_ascii);
+  //voltear especularmente la matriz de estados  y las energias
+  //para seguir con el estandar simple (energia baja, columna inmediata)
+  EigenValores=flipud(EigenValores);
+  EigenEstados=fliplr(EigenEstados);
+  
+  EigenEstados.insert_cols(0, PuntosQ);
+
+  EigenValores.save(nombreenergias,raw_ascii);
+  EigenEstados.save(nombreestados,raw_ascii);
 
 
   return 0;
+
 
 }

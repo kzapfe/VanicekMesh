@@ -1,0 +1,946 @@
+\documentclass[a4paper,12pt]{article}
+
+\usepackage[utf8]{inputenc}
+%\usepackage[spanish]{babel}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+%\usepackage{subfigure}
+\usepackage{bm}
+\usepackage{caption}
+\usepackage{subcaption}
+
+\usepackage[cm]{fullpage}
+\usepackage[light]{antpolt}
+\usepackage[T1]{fontenc}
+
+\usepackage{float}
+
+%Este paquete le pone una barrera a los floats
+% al final de cada seccion
+\usepackage[section]{placeins}
+
+
+\bibliographystyle{alpha}
+
+\newcommand{\dt}{\Delta\tau}
+\newcommand{\ihb}{\frac{i}{\hbar}}
+\newcommand{\xfase}{\mathbf{x}}
+\newcommand{\yfase}{\mathbf{y}}
+\newcommand{\qfase}{\mathbf{q}}
+\newcommand{\pfase}{\mathbf{p}}
+\newcommand{\xifase}{ {\boldsymbol{\xi}} }
+\newcommand{\mufase}{ {\boldsymbol{\mu}} }
+\newcommand{\Ifase}{\mathbf{I}}
+\newcommand{\Pfase}{\mathbf{P}}
+\newcommand{\Scat}{\mathbf{S}}
+\newcommand{\Jsimp}{\mathbf{J}}
+\newcommand{\Dom}{\mathbb{D}}
+\newcommand{\Var}{\mathbb{M}}
+\newcommand{\bra}[1]{\langle #1|}
+\newcommand{\ket}[1]{|#1\rangle}
+\newcommand{\braket}[2]{\langle #1|#2\rangle}
+\newcommand{\Prom}[2]{\langle #1\rangle_{#2}}
+\newcommand{\rd}{\!\mathrm{d}}
+
+\DeclareMathOperator*{\cod}{cod}
+\DeclareMathOperator*{\traza}{traza}
+
+\begin{document}
+
+\title{Troubleshooting 05: Producing hundreds of Eigenstates. }
+\author{Zambrano et Zapfe}
+
+
+\maketitle
+
+\section{Hernando and Zambrano's Method}
+
+Recently, Hernando and Vaniceck published a method for obtaining
+very good numerical representation of Eigenfunctions for bounded
+quantum states \cite{Hernando}. The method is so simple
+that it seems a rip-off, but it is not. 
+Before tackling the problem with the Nelson Potential we (Zambrano and Karel)
+decided to test it first. When we got back Hernando and Vaniceck 
+results, we decided to use it for the Nelson Potential.
+Here is a brief explanation of the method and the
+modification proposed by Eduardo.
+
+Let us set things straight and formal.
+
+The formal solution for \emph{any} state represented by a state
+function $\Psi(q,t)$ under temporal evolution is given by:
+\begin{equation}
+\Psi(q,t)=\int dq' K(q,q', t-t') \Psi(q',t'),
+\end{equation}
+We set  $t_0=0$.
+
+Last equation is just syntactic sugar for the more formal expression below:
+\begin{equation}\label{evolbien}
+\bra{q}\ket{\Psi_t}=\int dq' \bra{q}U^t\ket{q'}\bra{q'}\ket{\Psi_0},
+\end{equation}
+where we have expanded the identity in the  $q'$: 
+\begin{equation}
+\Ifase=\int dq' \ket{q'}\bra{q'}.
+\end{equation}
+The vectorial nature of this formalism is more evident
+if we use abstract vectors instead of position space functions:
+\begin{equation}
+\ket{\Psi_t}=\int dq' U^t\ket{q'}\bra{q'}\ket{\Psi_0},
+\end{equation}
+
+Formally the evolution operator is:
+\begin{equation}
+U^t=\exp{(-\ihb \hat{H} t)} 
+\end{equation}
+If the Hamiltonian has the 
+usual form  $\hat{H}=\hat{T}+\hat{V}$, we could approximate the
+evolution operator by: 
+\begin{equation}\label{aproxHernando}
+\exp(-\ihb \hat{H} t)\approx 
+ \exp(-\ihb \hat{T} t)\exp(-\ihb \hat{V}t)+O([T,V]^2 t^2).
+\end{equation}
+Eduardo's modification consisted in using the following
+expression, which is numerically as simple as the
+former, but a bit better on the convergence for small $t$:
+\begin{equation}\label{aproxEduardo}
+\exp(-\ihb \hat{H} t)\approx
+ \exp(-\ihb \hat{V}t/2)\exp(-\ihb \hat{T} t)\exp(-\ihb \hat{V}t/2)+O([T,V]^4 t^4).
+\end{equation}
+We take this last expression and use it on 
+\ref{evolbien}:
+\begin{equation}\label{ketaprox1}
+\bra{q}\ket{\Psi_t}  = \int dq' \bra{q} 
+\exp(-\ihb \hat{V}t/2)\exp(-\ihb \hat{T} t)\exp(-\ihb \hat{V}t/) 
+\ket{q'}\bra{q'}\ket{\Psi_0},
+\end{equation}
+If $\exp(-\ihb \hat{V}t/2)$ is a well behaved function of  $\hat{q}$,
+then it produces the usual result over the  $q$ Eigenstates, that
+is, it produces a function of the eigenvalues multiplying the
+eigenstate:
+\begin{equation}\label{ketaprox2}
+  \bra{q}\ket{\Psi_t}  = \int dq' \exp(-\ihb t/2 (V(q)+V(q'))) 
+  \bra{q} \exp{-\ihb \hat{T} t}\ket{q'}\bra{q'}\ket{\Psi_0}.
+\end{equation}
+What stays inside the brackets is the propagator for a free
+particle, which gives:
+\begin{equation}\label{ketaprox2}
+  \bra{q}\ket{\Psi_t}  = \int dq' \exp(-\ihb t/2 (V(q)+V(q'))) 
+  (\frac{ i }{2\pi\hbar t})^{d/2} \exp(\ihb 1/(2t) (q-q')^2)
+  \bra{q'}\ket{\Psi_0}.
+\end{equation}
+
+Until here, nothing is new. Now we follow Hernando and use an imaginary ``time''
+of small magnitude, $t=-i\dt$, and
+$\Psi(q,t)$ representing a stationary state, i.e. 
+$\Psi(q,t)=\exp(-\ihb E_n t)\psi_n(q)$.
+\begin{equation}\label{ketaprox2}
+  \exp\big(-\frac{E_n \dt}{\hbar}\big) \psi_n(q_k)     
+= \int dq' \exp[-\hbar \dt/2 (V(q)+V(q'))] 
+  (\frac{1}{2\pi\hbar \dt})^{d/2} \exp[- \hbar/(2t) (q-q')^2]
+  \psi_n(q').
+\end{equation}
+
+In our scheme, we shall use an uniform grid of points in $q$ space. Then our
+identity operator takes the approximate form:
+\begin{equation}
+\int dq' \ket{q'}\bra{q'}\approx \frac{A}{N}\sum_j \ket{q_j'}\bra{q_j'}.
+\end{equation}
+Where $N$ is the number of points in the grid
+and $A$ the area covered by the sampling. 
+
+This shall then produce the following approximate equation for
+the Eigenstates:
+\begin{equation}\label{ketaprox3}
+ \exp\big[-\frac{E_n \dt}{\hbar}\big] = \frac{A}{N}\sum_j 
+\exp[-\hbar \dt/2 (V(q_k)+V(q_j))] 
+  (\frac{1}{2\pi\hbar \dt})^{d/2} \exp[- \hbar/(2t) (q_k-q_j)^2]
+  \psi_n(q_j).
+\end{equation}
+which is clearly an eigenvalue equation for the operator:
+\begin{equation}\label{opK}
+\tilde{K}_{kj}=\frac{A}{N}
+\exp(-\hbar \dt/2 (V(q_k)+V(q_j))) 
+  (\frac{1}{2\pi\hbar \dt})^{d/2} \exp(- \hbar/(2\dt) (q_k-q_j)^2)
+\end{equation}
+
+The problem then is really giving the eigensystem solution
+for the expression \ref{ketaprox2} viewed as:
+\begin{equation}\label{eigenv}
+  \exp(\frac{- E_n \dt}{\hbar}) \psi_n  = K \psi_n.
+\end{equation}
+The points in the grid act as indexes for the eigenvector 
+components.
+
+
+Could this be used for solving a numerical approximation for the
+Eigenstates and Eigenvalues? According to \cite{Hernando} is
+clear that it can be done. We could easily obtain
+their results by translating their Mathematica code to our
+own languages and we could also reproduce them after
+Eduardo's modification of the idea without mayor errors,
+so we are confident in the method. The same numerical caveats 
+pointed in the papers occur, no matter if we follow the
+method exactly or our own version. The method shows an
+uncomfortable dependency on the size of $\dt$, and
+only the lowest $1/5$th part of the Eigenvectors
+thus obtained are trustworthy. 
+
+It is my suggestion
+to use only open-sourced resources that are well established on
+the ``scientific numerical'' community, so I translated all of
+this to a mixture of \verb!c++! and Python code. People who
+developed the linear algebra routines that we use here
+ask to be cited so that their effort is noticed, so 
+(if this ever gets published) shall give adequate
+acknowledgement of this.
+
+\section{Technical details on the procedure}
+
+The first caveat is the problem of finding an adequate grid.
+The Nelson potential is a 2 d.o.f. problem, stated here as:
+\begin{equation}
+V(q_1, q_2)=q_1^2/20+(q_2-q_1^2/2)^2.
+\end{equation}
+Even for 
+very low resolutions, the operator $K$ in the equation \ref{opK}
+grows very fast, consuming a lot of memory space. Let us say that
+we put $N_1$ points per side on the $q$-space, then the eigenvector
+resolution (that is, the number of dimensions of the eigenvector),
+is $N_1^2=N$ and the operator $K$ has $N_1^4$ entries.
+A mesh of $N_1=100$ puts the limit of Python on my machine to test,
+but it works for checking the general behaviour of the algorithm. 
+
+According to the old work by Baranger et al. \cite{Bar87, Bar93},
+the Nelson Potential shows already very chaotic behaviour for relative low
+energies, of the order of $0.1$ in the units used. It must be said
+that the parameters chosen there have remained untouched along 
+all the work from there, to F. Toscano, and to mine. The 
+frequencies parameters, energy ranges and value for $\hbar$ is the same for
+everyone. For energy ranges around $0.8$, the classical trajectories
+are bounded by a caustic that looks like a quarter moon, banana or boomerang
+in the $q$-space which can be covered by a square with the corners given 
+by the next set of parameters:
+
+\begin{align}
+q_{1,min} =- 5.01, &\;  q_{1,max} = 5.01 \\
+q_{2,min} =- 1.01, &\;  q_{2,max} = 9.01.
+\end{align}
+
+Our grid is uniform, so we do not use the reduction proposed by Hernando.
+In the first ``pythonic'' try, we command the computer to use a mesh of 
+$N=80^2$ points, $80$ by side, and a $ \dt=0.1875$. In personal communication
+with Vaniceck he suggested us to use $\dt \approx \Delta q ^2$, where
+$\Delta q$ is the spacing in the grid. Hernando suggested Eduardo that
+for our approximation to the propagator a good rule of thumb for 
+the $\dt$ magnitude is to be around this expression:
+\begin{equation}
+\frac{m \Delta q^2}{\hbar \dt}\sim 1.
+\end{equation}
+The value that I encountered is a bit more than 
+ half of the value
+required for the last expression to be an equality.
+The lower bounds on the paper are respected by this expression.
+Also, it must be said that playing around with the values of
+$\dt$, the shape of the Eigenstates remains robust, only a
+slight change in the energies is observed. 
+Our algorithms first produces the uniform grid of points in
+the mentioned square. Then we calculate entry by entry of the
+matrix of the propagator $K$ as given by the equation 
+\ref{opk}. We use the numerical routines of SciPy \cite{scipy},
+which has a powerful linear algebra routine for solving Eigenstates.
+It must be said that we do not impose a limit on the precision, so
+we use the full capacity of the machine for solving eigenvalues.
+
+Using this method we have obtained around 350 thrust-worthy Eigenvectors, 
+with a resolution of 80 by 80 points. which I show in the figure
+\ref{muestrasprimerintento}.
+
+\begin{figure}[h]
+  \centering
+  \begin{subfigure}[b]{0.48\textwidth}
+    \includegraphics[width=\textwidth]{figuras/EstadoLowRes001.png}
+    \caption{state 1}
+    \label{fig:gull}
+  \end{subfigure}%
+  % add desired spacing between images, e. g. ~, \quad, \qquad, \hfill etc.
+  % (or a blank line to force the subfigure onto a new line)
+  \begin{subfigure}[b]{0.48\textwidth}
+    \includegraphics[width=\textwidth]{figuras/EstadoLowRes073.png}
+    \caption{state 73}
+    \label{fig:tiger}
+  \end{subfigure}\\
+  % add desired spacing between images, e. g. ~, \quad, \qquad, \hfill etc.
+  % (or a blank line to force the subfigure onto a new line)
+  \begin{subfigure}[b]{0.48\textwidth}
+    \includegraphics[width=\textwidth]{figuras/EstadoLowRes200.png}
+    \caption{state 200}
+    \label{fig:mouse}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.48\textwidth}
+    \includegraphics[width=\textwidth]{figuras/EstadoLowRes294.png}
+    \caption{state 294}
+    \label{fig:mouse}
+  \end{subfigure}
+  \caption{Some Eigenfunctions as obtained by the Hernando-Zambrano method.} 
+  \label{muestrasprimerintento}
+\end{figure}
+
+The resolution of the figures is very crude, but it suffices to
+see the growing of the horns of the bananoid, and the ``scarification'' process
+as we go to higher energies. 
+
+Still, we cannot use this data for obtaining the centre and chord
+functions, precisely because our resolution is to low and at the
+energies that we are interested ($E\sim 0.8$) the oscillations are already
+very dense. 
+
+For obtaining a slightly more accurate version of the Eigenfunctions,
+I have translated the routine to a lower level language, namely,
+\verb!c++!, and used the Armadillo Linear Algebra library, with bindings to
+Lapack \cite{armadillo}. This has proven much faster and I could force the
+machine for a denser grid (3 times more dense). Armadillo has a very
+powerful routine which enables it to calculate only the lower or higher
+eigenvalues of a sparse matrix. Our propagator $K$ is \emph{almost}
+a sparse matrix, as the magnitude of the elements decreases as a gaussian
+outside the diagonal. It turns out that we can set a very low numerical
+tolerance and set the values of $K_{jk}=0$ if their absolute value is
+below that tolerance. I have chosen the tolerance to be 
+$\epsilon=10^{-5}$, and this gives consistent results with
+the ScyPy routine but produces denser Eigenvectors, and in the
+sense explained in \cite{Hernando}, also more confidence 
+on the higher levels. The next figure, \ref{muestrasintentomejor},
+shows the Eigenfunctions in $q$-space thus obtained. The number of points
+by side is $256$, and I have settled for $\dt=0.03$. This puts the 
+parameters in the right ballpark.
+
+
+\begin{figure}[h]
+  \centering
+  \begin{subfigure}[b]{0.48\textwidth}
+    \includegraphics[width=\textwidth]{figuras/EstadoSemiRes001.png}
+    \caption{state 1}
+    \label{fig:gull}
+  \end{subfigure}%
+  % add desired spacing between images, e. g. ~, \quad, \qquad, \hfill etc.
+  % (or a blank line to force the subfigure onto a new line)
+  \begin{subfigure}[b]{0.48\textwidth}
+    \includegraphics[width=\textwidth]{figuras/EstadoSemiRes073.png}
+    \caption{state 73}
+    \label{fig:tiger}
+  \end{subfigure}\\
+  % add desired spacing between images, e. g. ~, \quad, \qquad, \hfill etc.
+  % (or a blank line to force the subfigure onto a new line)
+  \begin{subfigure}[b]{0.48\textwidth}
+    \includegraphics[width=\textwidth]{figuras/EstadoSemiRes200.png}
+    \caption{state 200}
+    \label{fig:mouse}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.48\textwidth}
+    \includegraphics[width=\textwidth]{figuras/EstadoSemiRes294.png}
+    \caption{state 294}
+    \label{fig:mouse}
+  \end{subfigure}
+  \caption{Some Eigenfunctions as obtained by the Hernando-Zambrano method,
+this time with Armadillo and Lapack on a  c++   
+program. Much better resolution
+and clearer definition of the scars and highs and lows is notorious, also, the
+Eigenergies are closer as those reported by previous works. Structural differences 
+are allready noticable for the higher state. Numerical errors in the eigenvalue
+obtention can shuffle the ordering of the eigenlevels. In the previous figure, the
+state 294 was an odd state, while here it is an even state. Also the energy
+is clearly higher, and closer to previous reported results for such a level.} 
+  \label{muestrasintentomejor}
+\end{figure}
+ 
+
+\section{Centres and Chords}
+
+If we can trust the method described above, then we may be able to
+obtain centre and chord functions from the results. The expression
+for the centre function for a pure state  
+reveals something that we may not be prepared
+to confront, though:
+
+\begin{equation}
+  W(\xfase)=\frac{1}{(2\pi\hbar)^d}\int \rd \xi \bra{\qfase 
+    +\xi/2}\hat{\rho}\ket{\qfase-\xi/2}\exp(-\ihb \pfase \cdot \xi) 
+\end{equation}
+In a more down to Earth  expression, for a pure state:
+\begin{equation}
+  W(\xfase)=\frac{1}{(2\pi\hbar)^d}\int \rd \xi \psi^*(\qfase 
+  +\xi/2)\psi(\qfase-\xi/2)\exp(-\ihb \pfase \cdot \xi) 
+\end{equation}
+
+The detail in this expression is that we need \emph{twice} as better
+sampling over the integrating chord $\xi$ as for the $q$-space representation
+if we want to keep the same resolution. We hope that for our range of interest,
+the Eigenvectors obtained have the important information, such as peaks and 
+valleys adequately sampled, and nodal lines more or less clearly defined. 
+Then we can \emph{oversample} the $q$ representation function with an
+interpolation routine. I have chosen the ScyPy interpolation function 
+with custom parameters, using a quintic spline in both axis. This enables us to 
+integrate over the ``middle'' values between different points in the grid. 
+The interpolated functions also produce very pretty pictures, as shown below, in 
+the figure \ref{exampleinterpol}. The interpolations become slower
+as the oscillations become denser, so for the first 10 Eigenfunctions it takes
+some 3 minutes, while for the state 294, our old paradigmatic case, it
+takes almost 30 minutes. So this interpolation time is also a measure
+of complexity in the structures of the Eigenfunctions thus obtained. 
+
+\begin{figure}[h]
+  \centering
+  \begin{subfigure}[b]{0.48\textwidth}
+    \includegraphics[width=\textwidth]{figuras/EstadoInterpoladoMedioDenso001.png}
+    \caption{state 1}
+    \label{fig:gull}
+  \end{subfigure}%
+  % add desired spacing between images, e. g. ~, \quad, \qquad, \hfill etc.
+  % (or a blank line to force the subfigure onto a new line)
+  \begin{subfigure}[b]{0.48\textwidth}
+    \includegraphics[width=\textwidth]{figuras/EstadoInterpoladoMedioDenso073.png}
+    \caption{state 73}
+    \label{fig:tiger}
+  \end{subfigure}\\
+  % add desired spacing between images, e. g. ~, \quad, \qquad, \hfill etc.
+  % (or a blank line to force the subfigure onto a new line)
+  \begin{subfigure}[b]{0.48\textwidth}
+    \includegraphics[width=\textwidth]{figuras/EstadoInterpoladoMedioDenso200.png}
+    \caption{state 200}
+    \label{fig:mouse}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.48\textwidth}
+    \includegraphics[width=\textwidth]{figuras/EstadoInterpoladoMedioDenso294.png}
+    \caption{state 294}
+    \label{fig:mouse}
+  \end{subfigure}
+  \caption{Some Eigenfunctions as obtained by the Hernando-Zambrano method,
+this time with Armadillo and Lapack on a  c++   
+program, then worked out with a quintic interpolation on SciPy, before
+producing the Centre and Chords Functions.} 
+  \label{exampleinterpol}
+\end{figure}
+
+Obtaining the Centre Function for a fixed section in the centre space is
+relative fast. If we set the centre corresponding to the first coordinate pair
+to zero, that is, $(q_1,p_1)=(0,0)$, then the transform reduces to
+an integration of the auto-correlations over the $\xi_{q1}$ variable and 
+a Fourier Transform of the $\xi_{q2}$ variable. Numerically speaking, this is 
+easy. For the same states as shown above I shall give in the next figure
+the centre functions, fig. \ref{muestracentros}.
+
+
+\begin{figure}[h]
+  \centering
+  \begin{subfigure}[b]{0.98\textwidth}
+    \includegraphics[width=\textwidth]{figuras/Centros001.png}
+    \caption{state 1}
+    \label{fig:gull}
+  \end{subfigure}%
+  % add desired spacing between images, e. g. ~, \quad, \qquad, \hfill etc.
+  % (or a blank line to force the subfigure onto a new line)
+
+  \begin{subfigure}[b]{0.98\textwidth}
+    \includegraphics[width=\textwidth]{figuras/Centros073.png}
+    \caption{state 73}
+    \label{fig:tiger}
+  \end{subfigure}
+  % add desired spacing between images, e. g. ~, \quad, \qquad, \hfill etc.
+  % (or a blank line to force the subfigure onto a new line)
+
+  \begin{subfigure}[b]{0.98\textwidth}
+    \includegraphics[width=\textwidth]{figuras/Centros200.png}
+    \caption{state 200}
+    \label{fig:mouse}
+  \end{subfigure}
+
+  \begin{subfigure}[b]{0.98\textwidth}
+    \includegraphics[width=\textwidth]{figuras/Centros294.png}
+    \caption{state 294}
+    \label{fig:mouse}
+  \end{subfigure}
+  \caption{The Centre Functions for the Eigenstates shown in previous figures.
+Here we set $(q_1, p_1)=(0,0)$.} 
+  \label{exampleinterpol}
+\end{figure}
+
+Obtaining the chord functions directly from our Eigenstates is much slower.
+Of course, this was to be expected, part of the motivation of the original
+work is to find more efficient methods to get this sort of Quantum Measures
+without having to recurr to the extensive exact manipulation of the
+State Vector. This is because there is no way to efficiently skip the double
+0sampling over the points in $q$-space this time, 
+even after choosing the chord that corresponds
+to the first coordinate pair equal to zero. Detailing this, we have:
+\begin{equation}
+  \chi(\xifase)=\frac{1}{(2\pi\hbar)^d}\int \rd \qfase \psi^*(\qfase 
+  +\xi/2)\psi(\qfase-\xi/2)\exp(+\ihb \qfase \cdot \xifase_p),
+\end{equation}
+and we set $(\xi_{q1},\xi_{p1})=(0,0)$. Then this is explicitly
+\begin{equation}
+  \chi(\xifase)=\frac{1}{(2\pi\hbar)^d}\int \rd q_1 \rd q_2  \psi^*(q_1, q_2+ 
+  \xi_{q2}/2)\psi(q_1, q_2-\xi_{q2}/2)\exp(+\ihb q_2  \xi_{p2}).
+\end{equation}
+Numerically, is easier to express this as function of $2 \xifase$, so that it
+coincides with our sampling density:
+. Then this is explicitly
+\begin{equation}
+  \chi( 2 \xifase)=\frac{1}{(2\pi\hbar)^d}\int \rd q_1 \rd q_2  \psi^*(q_1, q_2+ 
+  \xi_{q2})\psi(q_1, q_2-\xi_{q2})\exp(+2\ihb q_2  \xi_{p2}).
+\end{equation}
+The results of performing this last numerical integration are shown below, in
+figure \ref{SomeChords}.
+
+\begin{figure}[h]
+  \centering
+  \begin{subfigure}[b]{0.48\textwidth}
+    \includegraphics[width=\textwidth]{figuras/Cuerdas001.pdf}
+    \caption{state 1}
+    \label{fig:gull}
+  \end{subfigure}%
+  % add desired spacing between images, e. g. ~, \quad, \qquad, \hfill etc.
+  % (or a blank line to force the subfigure onto a new line)
+  \begin{subfigure}[b]{0.48\textwidth}
+    \includegraphics[width=\textwidth]{figuras/Cuerdas073.pdf}
+    \caption{state 73}
+    \label{fig:tiger}
+  \end{subfigure}\\
+  % add desired spacing between images, e. g. ~, \quad, \qquad, \hfill etc.
+  % (or a blank line to force the subfigure onto a new line)
+  \begin{subfigure}[b]{0.48\textwidth}
+    \includegraphics[width=\textwidth]{figuras/Cuerdas200.pdf}
+    \caption{state 200}
+    \label{fig:mouse}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.48\textwidth}
+    \includegraphics[width=\textwidth]{figuras/Cuerdas294.pdf}
+    \caption{state 294}
+    \label{fig:mouse}
+  \end{subfigure}
+  \caption{Finally, the Chord functions obtained directly from the Interpolated
+Eigenfunctions shown before. } 
+  \label{SomeChords}
+\end{figure}
+
+\section{Ergodicity? What Ergodicity?}
+
+Before I translated the code to c++, Eduardo and myself ran various
+test on the higher level languages (Python and Mathematica), at lower
+resolutions. We know that the results are more or less robust, and
+it may happen that eigenlevels get a bit unordered by low resolution
+on the $N$ and not perfectly choosen $\dt$, but still good enough to 
+trust the general shape of the first 300 or so levels, out of 6400 obtained.
+
+After visually analysing the Eigenfunctions, we had a hard felling:
+for these parameters, the quantum states where absolutely not ergodic. 
+That means that the higher density of probabily was acumulated 
+in a very non-uniform way along the bananoid. I did a carefull
+interpolation of these tests in the levels between 250 and 330, whose
+energy range is $[0.7258847, 0.8325542]$. This could be very significative,
+as the classical caustic in $q$-space  
+has practically the same shape and size along
+this parameter values, but the quantum functions are very  different in
+their distribution. To make it clearer, I plotted the probability density
+trazed over the $q_1=q_x$ coordinate, leaving only a probability density
+function on the $q_2=:q_y$. I show some paradigmatic examples below.
+
+\section{What can be done next?}
+
+After visual inspection of the following figures, one can see that
+the distribution (and therefore, the cumulants) of the $q_2$ vary a lot
+in that energy range. We propose two courses of actions: investigage
+higher levels (around 800) for which I allready have a working code.
+The second one is more bold: if individual Eigenstates have too much 
+structure on its configuration space representation, then we may be wrong
+about the ergodic conjecture \emph{for individual eigenstates of the energy}.
+We could ``wash away'' this structure by thinking on a mixed state over
+a small energy range, where the distribution covers more or less evenly 
+the bananoid \ldots This would be actually a strengthening of the
+``weaker ergodic hypothesis'', but it may work.
+
+
+\pagebreak
+
+\begin{figure}[h]
+  \centering
+  \begin{subfigure}[b]{0.40\textwidth}
+    \includegraphics[width=\textwidth]{figuras/EstadoInterpolado250.png}
+    \caption{$\psi(\qfase)$}
+    \label{fig:gull}
+  \end{subfigure}\\% 
+  % add desired spacing between images, e. g. ~, \quad, \qquad, \hfill etc.
+  % (or a blank line to force the subfigure onto a new line)
+  \begin{subfigure}[b]{0.98\textwidth}
+    \includegraphics[width=\textwidth]
+    {figuras/EstadoInterpolado250-CentrosWigneryProy.png}
+    \caption{$W(q_y,p_y)$}
+    \label{centrodenso}
+  \end{subfigure}\\
+  \begin{subfigure}[b]{0.40\textwidth}
+    \includegraphics[width=\textwidth]
+    {figuras/EstadoInterpolado250-Cuerdas-ZerosContour.pdf}
+    \caption{$\chi(\xifase_2)$, Nodal Lines.}
+    \label{fig:mouse}
+  \end{subfigure}  
+  \begin{subfigure}[b]{0.40\textwidth}
+    \includegraphics[width=\textwidth]
+    {figuras/CuerdasPuntos-250-ZerosContour.pdf}
+    \caption{$\chi(\xifase_2)$, Nodal Lines, Pointillist Aproximation.}
+    \label{fig:mouse}
+  \end{subfigure}
+  \caption{The 250 Eigenstate, in various representations and sections. The green line
+in the subfigure \ref{centrodenso} is the partial trace over the $q_x$ values of
+the expression $\psi^*(\qfase)\psi(-\qfase)$. Due to the symmetric or antisymmetric nature of the states, it is either the probability density as function of $q_y$ or the additive inverse of it. } 
+  \label{Estado250}
+\end{figure}
+
+\pagebreak
+
+\begin{figure}[h]
+  \centering
+  \begin{subfigure}[b]{0.40\textwidth}
+    \includegraphics[width=\textwidth]{figuras/EstadoInterpolado273.png}
+    \caption{$\psi(\qfase)$}
+    \label{fig:gull}
+  \end{subfigure}\\% 
+  % add desired spacing between images, e. g. ~, \quad, \qquad, \hfill etc.
+  % (or a blank line to force the subfigure onto a new line)
+  \begin{subfigure}[b]{0.98\textwidth}
+    \includegraphics[width=\textwidth]
+    {figuras/EstadoInterpolado273-CentrosWigneryProy.png}
+    \caption{$W(q_y,p_y)$}
+    \label{centrodenso273}
+  \end{subfigure}\\
+  \begin{subfigure}[b]{0.40\textwidth}
+    \includegraphics[width=\textwidth]
+    {figuras/EstadoInterpolado273-Cuerdas-ZerosContour.pdf}
+    \caption{$\chi(\xifase_2)$, Nodal Lines.}
+    \label{fig:mouse}
+  \end{subfigure}  
+  \begin{subfigure}[b]{0.40\textwidth}
+    \includegraphics[width=\textwidth]
+    {figuras/CuerdasPuntos-273-ZerosContour.pdf}
+    \caption{$\chi(\xifase_2)$, Nodal Lines, Pointillist Aproximation.}
+    \label{fig:mouse}
+  \end{subfigure}
+  \caption{The 273 Eigenstate. } 
+  \label{Estado273}
+\end{figure}
+
+\pagebreak
+
+\begin{figure}[h]
+  \centering
+  \begin{subfigure}[b]{0.40\textwidth}
+    \includegraphics[width=\textwidth]{figuras/EstadoInterpolado274.png}
+    \caption{$\psi(\qfase)$}
+    \label{fig:gull}
+  \end{subfigure}\\% 
+  % add desired spacing between images, e. g. ~, \quad, \qquad, \hfill etc.
+  % (or a blank line to force the subfigure onto a new line)
+  \begin{subfigure}[b]{0.98\textwidth}
+    \includegraphics[width=\textwidth]
+    {figuras/EstadoInterpolado274-CentrosWigneryProy.png}
+    \caption{$W(q_y,p_y)$}
+    \label{centrodenso273}
+  \end{subfigure}\\
+  \begin{subfigure}[b]{0.40\textwidth}
+    \includegraphics[width=\textwidth]
+    {figuras/EstadoInterpolado274-Cuerdas-ZerosContour.pdf}
+    \caption{$\chi(\xifase_2)$, Nodal Lines.}
+    \label{fig:mouse}
+  \end{subfigure}  
+  \begin{subfigure}[b]{0.40\textwidth}
+    \includegraphics[width=\textwidth]
+    {figuras/CuerdasPuntos-274-ZerosContour.pdf}
+    \caption{$\chi(\xifase_2)$, Nodal Lines, Pointillist Aproximation.}
+    \label{fig:mouse}
+  \end{subfigure}
+  \caption{The 274 Eigenstate. } 
+  \label{Estado274}
+\end{figure}
+
+
+\pagebreak
+
+\begin{figure}[h]
+  \centering
+  \begin{subfigure}[b]{0.40\textwidth}
+    \includegraphics[width=\textwidth]{figuras/EstadoInterpolado280.png}
+    \caption{$\psi(\qfase)$}
+    \label{fig:gull}
+  \end{subfigure}\\% 
+  % add desired spacing between images, e. g. ~, \quad, \qquad, \hfill etc.
+  % (or a blank line to force the subfigure onto a new line)
+  \begin{subfigure}[b]{0.98\textwidth}
+    \includegraphics[width=\textwidth]
+    {figuras/EstadoInterpolado280-CentrosWigneryProy.png}
+    \caption{$W(q_y,p_y)$}
+    \label{centrodenso273}
+  \end{subfigure}\\
+  \begin{subfigure}[b]{0.40\textwidth}
+    \includegraphics[width=\textwidth]
+    {figuras/EstadoInterpolado280-Cuerdas-ZerosContour.pdf}
+    \caption{$\chi(\xifase_2)$, Nodal Lines.}
+    \label{fig:mouse}
+  \end{subfigure}  
+  \begin{subfigure}[b]{0.40\textwidth}
+    \includegraphics[width=\textwidth]
+    {figuras/CuerdasPuntos-280-ZerosContour.pdf}
+    \caption{$\chi(\xifase_2)$, Nodal Lines, Pointillist Aproximation.}
+    \label{fig:mouse}
+  \end{subfigure}
+  \caption{The 280 Eigenstate. } 
+  \label{Estado280}
+\end{figure}
+
+\pagebreak
+
+\begin{figure}[h]
+  \centering
+  \begin{subfigure}[b]{0.40\textwidth}
+    \includegraphics[width=\textwidth]{figuras/EstadoInterpolado282.png}
+    \caption{$\psi(\qfase)$}
+    \label{fig:gull}
+  \end{subfigure}\\% 
+  % add desired spacing between images, e. g. ~, \quad, \qquad, \hfill etc.
+  % (or a blank line to force the subfigure onto a new line)
+  \begin{subfigure}[b]{0.98\textwidth}
+    \includegraphics[width=\textwidth]
+    {figuras/EstadoInterpolado282-CentrosWigneryProy.png}
+    \caption{$W(q_y,p_y)$}
+    \label{centrodenso273}
+  \end{subfigure}\\
+  \begin{subfigure}[b]{0.40\textwidth}
+    \includegraphics[width=\textwidth]
+    {figuras/EstadoInterpolado282-Cuerdas-ZerosContour.pdf}
+    \caption{$\chi(\xifase_2)$, Nodal Lines.}
+    \label{fig:mouse}
+  \end{subfigure}  
+  \begin{subfigure}[b]{0.40\textwidth}
+    \includegraphics[width=\textwidth]
+    {figuras/CuerdasPuntos-282-ZerosContour.pdf}
+    \caption{$\chi(\xifase_2)$, Nodal Lines, Pointillist Aproximation.}
+    \label{fig:mouse}
+  \end{subfigure}
+  \caption{The 282 Eigenstate. } 
+  \label{Estado282}
+\end{figure}
+
+
+\pagebreak
+
+\begin{figure}[h]
+  \centering
+  \begin{subfigure}[b]{0.40\textwidth}
+    \includegraphics[width=\textwidth]{figuras/EstadoInterpolado286.png}
+    \caption{$\psi(\qfase)$}
+    \label{fig:gull}
+  \end{subfigure}\\% 
+  % add desired spacing between images, e. g. ~, \quad, \qquad, \hfill etc.
+  % (or a blank line to force the subfigure onto a new line)
+  \begin{subfigure}[b]{0.98\textwidth}
+    \includegraphics[width=\textwidth]
+    {figuras/EstadoInterpolado286-CentrosWigneryProy.png}
+    \caption{$W(q_y,p_y)$}
+    \label{centrodenso273}
+  \end{subfigure}\\
+  \begin{subfigure}[b]{0.40\textwidth}
+    \includegraphics[width=\textwidth]
+    {figuras/EstadoInterpolado286-Cuerdas-ZerosContour.pdf}
+    \caption{$\chi(\xifase_2)$, Nodal Lines.}
+    \label{fig:mouse}
+  \end{subfigure}  
+  \begin{subfigure}[b]{0.40\textwidth}
+    \includegraphics[width=\textwidth]
+    {figuras/CuerdasPuntos-286-ZerosContour.pdf}
+    \caption{$\chi(\xifase_2)$, Nodal Lines, Pointillist Aproximation.}
+    \label{fig:mouse}
+  \end{subfigure}
+  \caption{The 286 Eigenstate. } 
+  \label{Estado286}
+\end{figure}
+
+\pagebreak
+
+\begin{figure}[h]
+  \centering
+  \begin{subfigure}[b]{0.40\textwidth}
+    \includegraphics[width=\textwidth]{figuras/EstadoInterpolado293.png}
+    \caption{$\psi(\qfase)$}
+    \label{fig:gull}
+  \end{subfigure}\\% 
+  % add desired spacing between images, e. g. ~, \quad, \qquad, \hfill etc.
+  % (or a blank line to force the subfigure onto a new line)
+  \begin{subfigure}[b]{0.98\textwidth}
+    \includegraphics[width=\textwidth]
+    {figuras/EstadoInterpolado293-CentrosWigneryProy.png}
+    \caption{$W(q_y,p_y)$}
+    \label{centrodenso273}
+  \end{subfigure}\\
+  \begin{subfigure}[b]{0.40\textwidth}
+    \includegraphics[width=\textwidth]
+    {figuras/EstadoInterpolado293-Cuerdas-ZerosContour.pdf}
+    \caption{$\chi(\xifase_2)$, Nodal Lines.}
+    \label{fig:mouse}
+  \end{subfigure}  
+  \begin{subfigure}[b]{0.40\textwidth}
+    \includegraphics[width=\textwidth]
+    {figuras/CuerdasPuntos-293-ZerosContour.pdf}
+    \caption{$\chi(\xifase_2)$, Nodal Lines, Pointillist Aproximation.}
+    \label{fig:mouse}
+  \end{subfigure}
+  \caption{The 293 Eigenstate. } 
+  \label{Estado293}
+\end{figure}
+
+\pagebreak
+
+\begin{figure}[h]
+  \centering
+  \begin{subfigure}[b]{0.40\textwidth}
+    \includegraphics[width=\textwidth]{figuras/EstadoInterpolado294.png}
+    \caption{$\psi(\qfase)$}
+    \label{fig:gull}
+  \end{subfigure}\\% 
+  % add desired spacing between images, e. g. ~, \quad, \qquad, \hfill etc.
+  % (or a blank line to force the subfigure onto a new line)
+  \begin{subfigure}[b]{0.98\textwidth}
+    \includegraphics[width=\textwidth]
+    {figuras/EstadoInterpolado294-CentrosWigneryProy.png}
+    \caption{$W(q_y,p_y)$}
+    \label{centrodenso273}
+  \end{subfigure}\\
+  \begin{subfigure}[b]{0.40\textwidth}
+    \includegraphics[width=\textwidth]
+    {figuras/EstadoInterpolado294-Cuerdas-ZerosContour.pdf}
+    \caption{$\chi(\xifase_2)$, Nodal Lines.}
+    \label{fig:mouse}
+  \end{subfigure}  
+  \begin{subfigure}[b]{0.40\textwidth}
+    \includegraphics[width=\textwidth]
+    {figuras/CuerdasPuntos-294-ZerosContour.pdf}
+    \caption{$\chi(\xifase_2)$, Nodal Lines, Pointillist Aproximation.}
+    \label{fig:mouse}
+  \end{subfigure}
+  \caption{The 294 Eigenstate. } 
+  \label{Estado294}
+\end{figure}
+
+
+
+
+\pagebreak
+
+\begin{figure}[h]
+  \centering
+  \begin{subfigure}[b]{0.40\textwidth}
+    \includegraphics[width=\textwidth]{figuras/EstadoInterpolado303.png}
+    \caption{$\psi(\qfase)$}
+    \label{fig:gull}
+  \end{subfigure}\\% 
+  % add desired spacing between images, e. g. ~, \quad, \qquad, \hfill etc.
+  % (or a blank line to force the subfigure onto a new line)
+  \begin{subfigure}[b]{0.98\textwidth}
+    \includegraphics[width=\textwidth]
+    {figuras/EstadoInterpolado303-CentrosWigneryProy.png}
+    \caption{$W(q_y,p_y)$}
+    \label{centrodenso273}
+  \end{subfigure}\\
+  \begin{subfigure}[b]{0.40\textwidth}
+    \includegraphics[width=\textwidth]
+    {figuras/EstadoInterpolado303-Cuerdas-ZerosContour.pdf}
+    \caption{$\chi(\xifase_2)$, Nodal Lines.}
+    \label{fig:mouse}
+  \end{subfigure}  
+  \begin{subfigure}[b]{0.40\textwidth}
+    \includegraphics[width=\textwidth]
+    {figuras/CuerdasPuntos-303-ZerosContour.pdf}
+    \caption{$\chi(\xifase_2)$, Nodal Lines, Pointillist Aproximation.}
+    \label{fig:mouse}
+  \end{subfigure}
+  \caption{The 303 Eigenstate. } 
+  \label{Estado303}
+\end{figure}
+
+
+
+
+
+\pagebreak
+
+\begin{figure}[h]
+  \centering
+  \begin{subfigure}[b]{0.40\textwidth}
+    \includegraphics[width=\textwidth]{figuras/EstadoInterpolado327.png}
+    \caption{$\psi(\qfase)$}
+    \label{fig:gull}
+  \end{subfigure}\\% 
+  % add desired spacing between images, e. g. ~, \quad, \qquad, \hfill etc.
+  % (or a blank line to force the subfigure onto a new line)
+  \begin{subfigure}[b]{0.98\textwidth}
+    \includegraphics[width=\textwidth]
+    {figuras/EstadoInterpolado327-CentrosWigneryProy.png}
+    \caption{$W(q_y,p_y)$}
+    \label{centrodenso273}
+  \end{subfigure}\\
+  \begin{subfigure}[b]{0.40\textwidth}
+    \includegraphics[width=\textwidth]
+    {figuras/EstadoInterpolado327-Cuerdas-ZerosContour.pdf}
+    \caption{$\chi(\xifase_2)$, Nodal Lines.}
+    \label{fig:mouse}
+  \end{subfigure}  
+  \begin{subfigure}[b]{0.40\textwidth}
+    \includegraphics[width=\textwidth]
+    {figuras/CuerdasPuntos-327-ZerosContour.pdf}
+    \caption{$\chi(\xifase_2)$, Nodal Lines, Pointillist Aproximation.}
+    \label{fig:mouse}
+  \end{subfigure}
+  \caption{The 327 Eigenstate. } 
+  \label{Estado327}
+\end{figure}
+
+
+
+
+
+\pagebreak
+
+\begin{figure}[h]
+  \centering
+  \begin{subfigure}[b]{0.40\textwidth}
+    \includegraphics[width=\textwidth]{figuras/EstadoInterpolado329.png}
+    \caption{$\psi(\qfase)$}
+    \label{fig:gull}
+  \end{subfigure}\\% 
+  % add desired spacing between images, e. g. ~, \quad, \qquad, \hfill etc.
+  % (or a blank line to force the subfigure onto a new line)
+  \begin{subfigure}[b]{0.98\textwidth}
+    \includegraphics[width=\textwidth]
+    {figuras/EstadoInterpolado329-CentrosWigneryProy.png}
+    \caption{$W(q_y,p_y)$}
+    \label{centrodenso273}
+  \end{subfigure}\\
+  \begin{subfigure}[b]{0.40\textwidth}
+    \includegraphics[width=\textwidth]
+    {figuras/EstadoInterpolado329-Cuerdas-ZerosContour.pdf}
+    \caption{$\chi(\xifase_2)$, Nodal Lines.}
+    \label{fig:mouse}
+  \end{subfigure}  
+  \begin{subfigure}[b]{0.40\textwidth}
+    \includegraphics[width=\textwidth]
+    {figuras/CuerdasPuntos-329-ZerosContour.pdf}
+    \caption{$\chi(\xifase_2)$, Nodal Lines, Pointillist Aproximation.}
+    \label{fig:mouse}
+  \end{subfigure}
+  \caption{The 329 Eigenstate. } 
+  \label{Estado329}
+\end{figure}
+
+
+
+
+
+
+\bibliography{ziegos}
+
+\end{document}
