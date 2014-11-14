@@ -1,9 +1,9 @@
-/* Programa que carga un estado de Nelson y saca las Cuerdas  en 
+/* Programa que carga un estado arbitrario como funcion y saca las Cuerdas  en 
    el corte conjugado a  las y=(qy,py) (xhi_2)*/
 /* Version en Paralelo*/
 
-const double hbar=0.05;
-const double pi=3.1415926;
+const double hbar=1.0;
+const double pi=3.14159265359;
 
 #include<cmath>
 #include<armadillo>
@@ -21,26 +21,37 @@ int main(int argc, char *argv[]){
       exit(1);
     }
   
+  const double energia=155.0;
+
   string NombreValores;
   NombreValores=argv[1];
   mat valores;
   valores.load(NombreValores);
+  mat coordenadas;
+  coordenadas.load("Coordenadas01.dat");
+
 
   const int PuntosDominioEje=valores.n_rows;
   cout<<PuntosDominioEje<<endl;
 
-  const double xmin=-5.01,xmax=5.01;
-  const double ymin=-1.01, ymax=9.01;
-  const double pmin=-1.21, pmax=1.21;
+  vec xx,yy;
+
+  xx=coordenadas.col(0);
+  yy=coordenadas.col(1);
+  double pmax;
+
   
   //la mitad del dominio en muq es  la mitad del TAMANHO del
   //dominio de las yq, istus est:
-  const double muqmin=-5.01;
+  double muqmin=min(yy)/2.0;
  
   mat DominioQ(PuntosDominioEje,2);
-  double dx=(xmax-xmin)/PuntosDominioEje;
-  double dy=(ymax-ymin)/PuntosDominioEje;
-  double dp=(pmax-pmin)/PuntosDominioEje;
+  double dx=xx(1)-xx(0);
+  double dy=yy(1)-yy(0);
+
+  //obvio...
+  pmax=sqrt(2*energia);
+  double dp=2.*pmax/PuntosDominioEje;
   
  
   
@@ -64,7 +75,6 @@ int main(int argc, char *argv[]){
   //putos 100 por 100 puntos originalmente!!!
  
   
-
   ofstream cuerdasout;
   cuerdasout.open("CuerdasEnMu.dat");
 
@@ -117,7 +127,7 @@ int main(int argc, char *argv[]){
 	
 	for(int l=abs(k); l<=limiteintegrayq; l++){
 	  //en este ciclo integramos sobre y.
-	  yq=ymin+l*dy;
+	  yq=yy(l);
 	  //esto efectivamente integra sobre las x:
 	  //cout<<"probable lugar de cagarla"<<endl;
 	  //cout<<l<<"\t"<<l+k<<"\t"<<l-k<<"\t"<<k<<endl;
